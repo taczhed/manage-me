@@ -12,8 +12,9 @@ const save = (items: Task[]) => {
   localStorage.setItem(KEY, JSON.stringify(items));
 };
 
-export const getTasks = () => {
-  return load();
+export const getTasks = (storyId?: string) => {
+  const tasks = load();
+  return storyId ? tasks.filter((t) => t.storyId === storyId) : tasks;
 };
 
 export const getTask = (id: string) => {

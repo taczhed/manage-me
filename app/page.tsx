@@ -1,5 +1,5 @@
-import TaskBoard from './components/TaskBoard';
+import Main from './components/Layout/Main';
 
 export default function Home() {
-  return <TaskBoard />;
+  return <Main />;
 }

@@ -2,15 +2,15 @@ import { TaskStatus } from '../actions/types';
 
 export const STATUS_CONFIG: Record<TaskStatus, { label: string; color: string; bg: string; dot: string; ring: string }> = {
   todo: { label: 'Todo', color: 'text-amber-400', bg: 'bg-amber-400/10', dot: 'bg-amber-400', ring: 'ring-amber-400/30' },
-  'in-progress': {
-    label: 'In Progress',
+  doing: {
+    label: 'Doing',
     color: 'text-blue-400',
     bg: 'bg-blue-400/10',
     dot: 'bg-blue-400',
     ring: 'ring-blue-400/30',
   },
-  completed: {
-    label: 'Completed',
+  done: {
+    label: 'Done',
     color: 'text-emerald-400',
     bg: 'bg-emerald-400/10',
     dot: 'bg-emerald-400',

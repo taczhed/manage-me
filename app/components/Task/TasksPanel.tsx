@@ -1,6 +1,6 @@
-import { Task } from '../actions/types';
-import { STATUS_CONFIG, getAvatarColor, getInitials } from '../utils/config';
-import { CheckIcon, PencilIcon, TrashIcon } from './icons';
+import { Task } from '../../actions/types';
+import { STATUS_CONFIG, getAvatarColor, getInitials } from '../../utils/config';
+import { CheckIcon, PencilIcon, TrashIcon, CircleProgressIcon } from '../UI/Icons';
 
 type Props = {
   tasks: Task[];
@@ -9,8 +9,8 @@ type Props = {
 };
 
 const TasksPanel = ({ tasks, onEdit, onDelete }: Props) => {
-  const doneCount = tasks.filter((t) => t.status === 'completed').length;
-  const pct = tasks.length ? Math.round((doneCount / tasks.length) * 100) : 0;
+  const doneCount = tasks.filter((t) => t.status === 'done').length;
+  const percent = tasks.length ? Math.round((doneCount / tasks.length) * 100) : 0;
 
   return (
     <div className="bg-secondary flex flex-col gap-4 rounded-2xl border border-white/6 p-5">
@@ -27,21 +27,10 @@ const TasksPanel = ({ tasks, onEdit, onDelete }: Props) => {
       {tasks.length > 0 && (
         <div className="flex items-center gap-3 rounded-xl border border-white/6 bg-black/30 p-3">
           <div className="relative h-9 w-9 flex-shrink-0">
-            <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
-              <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
-              <circle
-                cx="18"
-                cy="18"
-                r="14"
-                fill="none"
-                stroke="#7c3aed"
-                strokeWidth="3"
-                strokeDasharray={`${pct * 0.879} 87.9`}
-                strokeLinecap="round"
-                style={{ transition: 'stroke-dasharray 0.6s ease' }}
-              />
-            </svg>
-            <span className="text-primary absolute inset-0 flex items-center justify-center text-[9px] font-bold">{pct}%</span>
+            <CircleProgressIcon percent={percent} />
+            <span className="text-primary absolute inset-0 flex items-center justify-center text-[9px] font-bold">
+              {percent}%
+            </span>
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-foreground-hover mb-1.5 flex justify-between text-xs">
@@ -49,7 +38,7 @@ const TasksPanel = ({ tasks, onEdit, onDelete }: Props) => {
               <span>{doneCount} completed</span>
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
-              <div className="bg-primary h-full rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
+              <div className="bg-primary h-full rounded-full transition-all duration-700" style={{ width: `${percent}%` }} />
             </div>
           </div>
         </div>
@@ -65,7 +54,7 @@ const TasksPanel = ({ tasks, onEdit, onDelete }: Props) => {
           </div>
         )}
         {tasks.map((task) => {
-          const sc = STATUS_CONFIG[task.status];
+          const status = STATUS_CONFIG[task.status];
           return (
             <div
               key={task.id}
@@ -80,8 +69,8 @@ const TasksPanel = ({ tasks, onEdit, onDelete }: Props) => {
                 <p className="text-foreground truncate text-sm font-medium">{task.title}</p>
                 {task.description && <p className="text-foreground-hover truncate text-[11px]">{task.description}</p>}
               </div>
-              <span className={`flex-shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${sc.bg} ${sc.color}`}>
-                {sc.label}
+              <span className={`flex-shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${status.bg} ${status.color}`}>
+                {status.label}
               </span>
               <div className="flex flex-shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
                 <button

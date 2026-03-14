@@ -51,3 +51,20 @@ export const CloseIcon = () => (
     <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
+
+
+export const TaskCheckIcon = () => (
+  <svg viewBox="0 0 10 10" className="h-full w-full p-0.5" stroke="currentColor"
+    strokeWidth="1.5" fill="none" strokeLinecap="round">
+    <path d="M1.5 5l2.5 2.5 4.5-4" />
+  </svg>
+);
+
+export const CircleProgressIcon = ({ percent }: { percent: number }) => (
+  <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
+    <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
+    <circle cx="18" cy="18" r="14" fill="none" stroke="#7c3aed" strokeWidth="3"
+      strokeDasharray={`${percent * 0.879} 87.9`} strokeLinecap="round"
+      style={{ transition: 'stroke-dasharray 0.6s ease' }} />
+  </svg>
+);
