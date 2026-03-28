@@ -3,20 +3,22 @@
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Story, Project } from '../../actions/types';
-import { getStory } from '../../actions/stories';
+import { getStory, updateStory, removeStory } from '../../actions/stories';
 import { getProject } from '../../actions/projects';
 import Navbar from '../../components/Layout/Navbar';
 import TaskBoard from '../../components/Task/TaskBoard';
+import StoryModal, { StoryFormData } from '../../components/Story/StoryModal';
 
 type Props = { params: Promise<{ storyId: string }> };
 
 export default function StoryPage({ params }: Props) {
   const { storyId } = use(params);
-  const [story] = useState<Story | null>(() => getStory(storyId) || null);
+  const [story, setStory] = useState<Story | null>(() => getStory(storyId) || null);
   const [project] = useState<Project | null>(() => {
     const s = getStory(storyId);
     return s ? getProject(s.projectId) || null : null;
   });
+  const [showEdit, setShowEdit] = useState(false);
 
   const router = useRouter();
 
@@ -25,6 +27,17 @@ export default function StoryPage({ params }: Props) {
   }, [story, router]);
 
   if (!story) return null;
+
+  const handleEditSave = (data: StoryFormData, _id?: string) => {
+    updateStory(storyId, data);
+    setStory(getStory(storyId) || null);
+    setShowEdit(false);
+  };
+
+  const handleDelete = () => {
+    removeStory(storyId);
+    router.push(project ? `/projects/${project.id}` : '/');
+  };
 
   return (
     <div className="relative min-h-screen">
@@ -35,9 +48,21 @@ export default function StoryPage({ params }: Props) {
       <div className="relative z-10">
         <Navbar project={project || undefined} story={story} />
         <main>
-          <TaskBoard story={story} />
+          <TaskBoard
+            story={story}
+            onEditStory={() => setShowEdit(true)}
+            onDeleteStory={handleDelete}
+          />
         </main>
       </div>
+
+      {showEdit && (
+        <StoryModal
+          story={story}
+          onClose={() => setShowEdit(false)}
+          onSave={handleEditSave}
+        />
+      )}
     </div>
   );
 }

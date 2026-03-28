@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Story, Project, User, StoryStatus } from '../../actions/types';
-import { getStories, createStory, updateStory, removeStory } from '../../actions/stories';
+import { Project, User, StoryStatus } from '../../actions/types';
+import { getStories, createStory } from '../../actions/stories';
 import StoryModal, { StoryFormData } from './StoryModal';
 import StoryCard from './StoryCard';
 
@@ -20,33 +20,18 @@ const COLUMNS: { status: StoryStatus; label: string; dot: string; accent: string
 const StoryBoard = ({ project, user }: Props) => {
   const [stories, setStories] = useState(() => getStories(project.id));
   const [showModal, setShowModal] = useState(false);
-  const [editStory, setEditStory] = useState<Story | null>(null);
   const [defaultStatus, setDefaultStatus] = useState<StoryStatus>('todo');
 
   const refresh = () => setStories(getStories(project.id));
 
-  const handleSave = (data: StoryFormData, id?: string) => {
-    if (id) updateStory(id, data);
-    else createStory({ ...data, projectId: project.id, ownerId: user.id });
-
+  const handleSave = (data: StoryFormData, _id?: string) => {
+    createStory({ ...data, projectId: project.id, ownerId: user.id });
     refresh();
     setShowModal(false);
-    setEditStory(null);
-  };
-
-  const handleDelete = (id: string) => {
-    removeStory(id);
-    refresh();
   };
 
   const openCreate = (status: StoryStatus) => {
     setDefaultStatus(status);
-    setEditStory(null);
-    setShowModal(true);
-  };
-
-  const openEdit = (story: Story) => {
-    setEditStory(story);
     setShowModal(true);
   };
 
@@ -82,7 +67,7 @@ const StoryBoard = ({ project, user }: Props) => {
 
                 <div className="space-y-2">
                   {col.map((story) => (
-                    <StoryCard key={story.id} story={story} user={user} onEdit={openEdit} onDelete={handleDelete} />
+                    <StoryCard key={story.id} story={story} />
                   ))}
                   {col.length === 0 && (
                     <div
@@ -101,12 +86,9 @@ const StoryBoard = ({ project, user }: Props) => {
 
       {showModal && (
         <StoryModal
-          story={editStory}
+          story={null}
           defaultStatus={defaultStatus}
-          onClose={() => {
-            setShowModal(false);
-            setEditStory(null);
-          }}
+          onClose={() => setShowModal(false)}
           onSave={handleSave}
         />
       )}

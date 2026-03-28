@@ -3,14 +3,16 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Story, TaskStatus, TaskPriority, CreateTaskInput } from '../../actions/types';
-import { getTasks, createTask, removeTask, assignTask, completeTask } from '../../actions/tasks';
+import { getTasks, createTask, assignTask, completeTask } from '../../actions/tasks';
 import { users } from '../../actions/users';
 import { STATUS_CONFIG, getAvatarColor, getInitials } from '../../utils/config';
-import { TrashIcon } from '../UI/Icons';
+import { PencilIcon, TrashIcon } from '../UI/Icons';
 import TaskModal, { TaskFormData } from './TaskModal';
 
 type Props = {
   story: Story;
+  onEditStory?: () => void;
+  onDeleteStory?: () => void;
 };
 
 const COLUMNS: { status: TaskStatus; label: string; dot: string; accent: string }[] = [
@@ -25,7 +27,7 @@ const PRIORITY_CONFIG: Record<TaskPriority, { label: string; color: string; bg: 
   high: { label: 'High', color: 'text-rose-400', bg: 'bg-rose-400/10' },
 };
 
-const TaskBoard = ({ story }: Props) => {
+const TaskBoard = ({ story, onEditStory, onDeleteStory }: Props) => {
   const [tasks, setTasks] = useState(() => getTasks(story.id));
   const [showModal, setShowModal] = useState(false);
   const [defaultStatus, setDefaultStatus] = useState<TaskStatus>('todo');
@@ -50,8 +52,38 @@ const TaskBoard = ({ story }: Props) => {
     <>
       <div className="mx-auto max-w-5xl p-4 sm:p-6">
         <div className="mb-6">
-          <h2 className="text-foreground text-xl font-bold tracking-tight">{story.name}</h2>
-          {story.description && <p className="text-foreground-hover mt-1 text-sm">{story.description}</p>}
+          <Link
+            href={`/projects/${story.projectId}`}
+            className="text-foreground-hover hover:text-foreground mb-4 inline-flex items-center gap-1.5 text-sm transition-colors"
+          >
+            Back to project
+          </Link>
+        </div>
+        <div className="mb-6 flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-foreground text-xl font-bold tracking-tight">{story.name}</h2>
+            {story.description && <p className="text-foreground-hover mt-1 text-sm">{story.description}</p>}
+          </div>
+          {(onEditStory || onDeleteStory) && (
+            <div className="flex shrink-0 items-center gap-1">
+              {onEditStory && (
+                <button
+                  onClick={onEditStory}
+                  className="rounded-lg p-1.5 text-white/40 transition-colors hover:bg-white/10 hover:text-white/80"
+                >
+                  <PencilIcon />
+                </button>
+              )}
+              {onDeleteStory && (
+                <button
+                  onClick={onDeleteStory}
+                  className="rounded-lg p-1.5 text-red-400/50 transition-colors hover:bg-red-400/10 hover:text-red-400"
+                >
+                  <TrashIcon />
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
