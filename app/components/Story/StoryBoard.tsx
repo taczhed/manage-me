@@ -26,11 +26,9 @@ const StoryBoard = ({ project, user }: Props) => {
   const refresh = () => setStories(getStories(project.id));
 
   const handleSave = (data: StoryFormData, id?: string) => {
-    if (id) {
-      updateStory(id, data);
-    } else {
-      createStory({ ...data, projectId: project.id, ownerId: user.id });
-    }
+    if (id) updateStory(id, data);
+    else createStory({ ...data, projectId: project.id, ownerId: user.id });
+
     refresh();
     setShowModal(false);
     setEditStory(null);
@@ -112,7 +110,6 @@ const StoryBoard = ({ project, user }: Props) => {
           onSave={handleSave}
         />
       )}
-
     </>
   );
 };

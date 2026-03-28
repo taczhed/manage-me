@@ -16,25 +16,28 @@ export type TaskFormData = { title: string; description: string; status: TaskSta
 
 type Props = {
   task: Task | null;
+  defaultStatus?: TaskStatus;
   onClose: () => void;
   onSave: (data: TaskFormData, id?: string) => void;
 };
 
-const TaskModal = ({ task, onClose, onSave }: Props) => {
+const TaskModal = ({ task, defaultStatus = 'todo', onClose, onSave }: Props) => {
   const isEdit = !!task;
   const [form, setForm] = useState<TaskFormData>({
     title: task?.title || '',
     description: task?.description || '',
-    status: task?.status || 'todo',
+    status: task?.status || defaultStatus,
   });
   const [titleError, setTitleError] = useState('');
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!form.title.trim()) {
       setTitleError('Title is required');
       return;
     }
+
     onSave({ title: form.title.trim(), description: form.description.trim(), status: form.status }, task?.id);
   };
 

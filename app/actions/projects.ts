@@ -64,5 +64,5 @@ export const setActiveProjectId = (id: string | null) => {
 export const getActiveProject = () => {
   const id = getActiveProjectId();
   if (!id) return null;
-  return getProject(id) ?? null;
+  return getProject(id) || null;
 };

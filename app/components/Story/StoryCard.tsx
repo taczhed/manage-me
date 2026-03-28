@@ -1,6 +1,6 @@
+import Link from 'next/link';
 import { Story, User } from '../../actions/types';
 import { PencilIcon, TrashIcon } from '../UI/Icons';
-import StoryTaskList from './StoryTaskList';
 
 const PRIORITY_CONFIG = {
   low: { label: 'Low', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
@@ -27,7 +27,13 @@ const StoryCard = ({ story, user, onEdit, onDelete }: Props) => {
   return (
     <div className="bg-secondary group relative rounded-xl border border-white/8 p-3.5 transition-all hover:border-white/15">
       <div className="mb-2 flex items-start justify-between gap-2">
-        <span className="text-foreground text-sm leading-snug font-medium">{story.name}</span>
+        <Link
+          href={`/stories/${story.id}`}
+          className="text-foreground text-sm leading-snug font-medium hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {story.name}
+        </Link>
         <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
           <button
             onClick={() => onEdit(story)}
@@ -69,7 +75,6 @@ const StoryCard = ({ story, user, onEdit, onDelete }: Props) => {
         </div>
       </div>
 
-      <StoryTaskList storyId={story.id} />
     </div>
   );
 };

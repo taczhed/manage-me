@@ -42,10 +42,12 @@ const StoryModal = ({ story, defaultStatus = 'todo', onClose, onSave }: Props) =
 
   const handleSubmit = () => {
     const trimmed = form.name.trim();
+
     if (!trimmed) {
       setNameError('Name is required');
       return;
     }
+
     onSave({ ...form, name: trimmed }, story?.id);
   };
 
