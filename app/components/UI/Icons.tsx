@@ -30,21 +30,6 @@ export const TrashIcon = () => (
   </svg>
 );
 
-export const CheckIcon = () => (
-  <svg
-    width="13"
-    height="13"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-);
-
 export const CloseIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
     <line x1="18" y1="6" x2="6" y2="18" />
@@ -52,19 +37,3 @@ export const CloseIcon = () => (
   </svg>
 );
 
-
-export const TaskCheckIcon = () => (
-  <svg viewBox="0 0 10 10" className="h-full w-full p-0.5" stroke="currentColor"
-    strokeWidth="1.5" fill="none" strokeLinecap="round">
-    <path d="M1.5 5l2.5 2.5 4.5-4" />
-  </svg>
-);
-
-export const CircleProgressIcon = ({ percent }: { percent: number }) => (
-  <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
-    <circle cx="18" cy="18" r="14" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
-    <circle cx="18" cy="18" r="14" fill="none" stroke="#7c3aed" strokeWidth="3"
-      strokeDasharray={`${percent * 0.879} 87.9`} strokeLinecap="round"
-      style={{ transition: 'stroke-dasharray 0.6s ease' }} />
-  </svg>
-);

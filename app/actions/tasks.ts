@@ -88,7 +88,3 @@ export const completeTask = (taskId: string) => {
 
   return getTask(taskId);
 };
-
-export const logHours = (taskId: string, hours: number) => {
-  return updateTask(taskId, { loggedHours: hours });
-};
