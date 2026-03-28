@@ -48,7 +48,7 @@ export default function TaskPage({ params }: Props) {
         <div className="absolute -right-40 -bottom-40 h-96 w-96 rounded-full bg-blue-500/[0.06] blur-3xl" />
       </div>
       <div className="relative z-10">
-        <Navbar project={project || undefined} story={story || undefined} />
+        <Navbar project={project || undefined} story={story || undefined} task={task} />
         <main>
           <TaskDetail
             task={task}

@@ -1,10 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Project, User, StoryStatus } from '../../actions/types';
-import { getStories, createStory } from '../../actions/stories';
+import { getStories, createStory, removeStory } from '../../actions/stories';
+import { updateProject, removeProject } from '../../actions/projects';
+import { PencilIcon, TrashIcon } from '../UI/Icons';
 import StoryModal, { StoryFormData } from './StoryModal';
 import StoryCard from './StoryCard';
+import ProjectModal from '../Project/ProjectModal';
+import ProjectEditModal from '../Project/ProjectEditModal';
 
 type Props = {
   project: Project;
@@ -18,9 +23,13 @@ const COLUMNS: { status: StoryStatus; label: string; dot: string; accent: string
 ];
 
 const StoryBoard = ({ project, user }: Props) => {
+  const router = useRouter();
   const [stories, setStories] = useState(() => getStories(project.id));
   const [showModal, setShowModal] = useState(false);
   const [defaultStatus, setDefaultStatus] = useState<StoryStatus>('todo');
+  const [showSwitcher, setShowSwitcher] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [localProject, setLocalProject] = useState(project);
 
   const refresh = () => setStories(getStories(project.id));
 
@@ -28,6 +37,18 @@ const StoryBoard = ({ project, user }: Props) => {
     createStory({ ...data, projectId: project.id, ownerId: user.id });
     refresh();
     setShowModal(false);
+  };
+
+  const handleEditSave = (name: string, description: string) => {
+    const updated = updateProject(localProject.id, { name, description });
+    if (updated) setLocalProject(updated);
+    setShowEdit(false);
+  };
+
+  const handleDelete = () => {
+    getStories(localProject.id).forEach((s) => removeStory(s.id));
+    removeProject(localProject.id);
+    router.push('/');
   };
 
   const openCreate = (status: StoryStatus) => {
@@ -39,8 +60,35 @@ const StoryBoard = ({ project, user }: Props) => {
     <>
       <div className="mx-auto max-w-5xl p-4 sm:p-6">
         <div className="mb-6">
-          <h2 className="text-foreground text-xl font-bold tracking-tight">{project.name}</h2>
-          {project.description && <p className="text-foreground-hover mt-1 text-sm">{project.description}</p>}
+          <button
+            onClick={() => setShowSwitcher(true)}
+            className="text-foreground-hover hover:text-foreground inline-flex items-center gap-1.5 text-sm transition-colors"
+          >
+            Change project
+          </button>
+          <div className="mt-3 flex flex-wrap items-start gap-3">
+            <h1 className="text-foreground flex-1 text-2xl font-bold tracking-tight">
+              <span className="text-foreground/20 mr-1 font-light">Project: </span>
+              {localProject.name}
+            </h1>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowEdit(true)}
+                className="rounded-xl border border-white/6 bg-black/30 p-2 text-white/50 transition-all hover:border-white/10 hover:text-white/80"
+                title="Edit project"
+              >
+                <PencilIcon />
+              </button>
+              <button
+                onClick={handleDelete}
+                className="rounded-xl border border-white/6 bg-black/30 p-2 text-red-400/50 transition-all hover:border-red-400/20 hover:text-red-400"
+                title="Delete project"
+              >
+                <TrashIcon />
+              </button>
+            </div>
+          </div>
+          {localProject.description && <p className="text-foreground-hover mt-2 text-sm">{localProject.description}</p>}
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -85,12 +133,15 @@ const StoryBoard = ({ project, user }: Props) => {
       </div>
 
       {showModal && (
-        <StoryModal
-          story={null}
-          defaultStatus={defaultStatus}
-          onClose={() => setShowModal(false)}
-          onSave={handleSave}
-        />
+        <StoryModal story={null} defaultStatus={defaultStatus} onClose={() => setShowModal(false)} onSave={handleSave} />
+      )}
+
+      {showEdit && (
+        <ProjectEditModal project={localProject} onClose={() => setShowEdit(false)} onSave={handleEditSave} />
+      )}
+
+      {showSwitcher && (
+        <ProjectModal currentProjectId={localProject.id} onClose={() => setShowSwitcher(false)} />
       )}
     </>
   );

@@ -2,7 +2,6 @@
 
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Project } from '../../actions/types';
 import { getProject, setActiveProjectId } from '../../actions/projects';
 import { currentUser } from '../../actions/users';
 import Navbar from '../../components/Layout/Navbar';
@@ -12,7 +11,7 @@ type Props = { params: Promise<{ projectId: string }> };
 
 export default function ProjectPage({ params }: Props) {
   const { projectId } = use(params);
-  const [project, setProject] = useState<Project | null>(() => getProject(projectId) || null);
+  const [project, setProject] = useState(() => getProject(projectId) || null);
 
   const router = useRouter();
 
@@ -33,7 +32,7 @@ export default function ProjectPage({ params }: Props) {
         <div className="absolute -right-40 -bottom-40 h-96 w-96 rounded-full bg-blue-500/[0.06] blur-3xl" />
       </div>
       <div className="relative z-10">
-        <Navbar project={project} onProjectUpdated={setProject} />
+        <Navbar project={project} />
         <main>
           <StoryBoard project={project} user={currentUser} />
         </main>

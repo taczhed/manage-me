@@ -58,7 +58,10 @@ const TaskDetail = ({ task, story, users, onRefresh, onDelete }: Props) => {
             Back to story
           </Link>
           <div className="mt-3 flex flex-wrap items-start gap-3">
-            <h1 className="text-foreground flex-1 text-2xl font-bold tracking-tight">{task.name}</h1>
+            <h1 className="text-foreground flex-1 text-2xl font-bold tracking-tight">
+              <span className="text-foreground/20 ml1 mr-1 font-light">Task: </span>
+              {task.name}
+            </h1>
             <div className="flex items-center gap-2">
               <span
                 className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${statusCfg.bg} ${statusCfg.color}`}

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Story, TaskStatus, TaskPriority, CreateTaskInput } from '../../actions/types';
+import { Story, TaskStatus, TaskPriority, StoryPriority, CreateTaskInput } from '../../actions/types';
 import { getTasks, createTask, assignTask, completeTask } from '../../actions/tasks';
 import { users } from '../../actions/users';
 import { STATUS_CONFIG, getAvatarColor, getInitials } from '../../utils/config';
@@ -11,6 +11,7 @@ import TaskModal, { TaskFormData } from './TaskModal';
 
 type Props = {
   story: Story;
+  projectName?: string;
   onEditStory?: () => void;
   onDeleteStory?: () => void;
 };
@@ -21,7 +22,7 @@ const COLUMNS: { status: TaskStatus; label: string; dot: string; accent: string 
   { status: 'done', label: 'Done', dot: 'bg-emerald-400', accent: 'border-emerald-400/20' },
 ];
 
-const PRIORITY_CONFIG: Record<TaskPriority, { label: string; color: string; bg: string }> = {
+const PRIORITY_CONFIG: Record<TaskPriority | StoryPriority, { label: string; color: string; bg: string }> = {
   low: { label: 'Low', color: 'text-emerald-400', bg: 'bg-emerald-400/10' },
   medium: { label: 'Medium', color: 'text-amber-400', bg: 'bg-amber-400/10' },
   high: { label: 'High', color: 'text-rose-400', bg: 'bg-rose-400/10' },
@@ -58,18 +59,28 @@ const TaskBoard = ({ story, onEditStory, onDeleteStory }: Props) => {
           >
             Back to project
           </Link>
-        </div>
-        <div className="mb-6 flex items-start justify-between gap-3">
-          <div>
-            <h2 className="text-foreground text-xl font-bold tracking-tight">{story.name}</h2>
-            {story.description && <p className="text-foreground-hover mt-1 text-sm">{story.description}</p>}
-          </div>
-          {(onEditStory || onDeleteStory) && (
-            <div className="flex shrink-0 items-center gap-1">
+          <div className="mt-3 flex flex-wrap items-start gap-3">
+            <h1 className="text-foreground flex-1 text-2xl font-bold tracking-tight">
+              <span className="text-foreground/20 ml1 mr-1 font-light">Story: </span>
+              {story.name}
+            </h1>
+            <div className="flex items-center gap-2">
+              <span
+                className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_CONFIG[story.status].bg} ${STATUS_CONFIG[story.status].color}`}
+              >
+                <span className={`h-1.5 w-1.5 rounded-full ${STATUS_CONFIG[story.status].dot}`} />
+                {STATUS_CONFIG[story.status].label}
+              </span>
+              <span
+                className={`rounded-full px-2.5 py-1 text-xs font-medium ${PRIORITY_CONFIG[story.priority].bg} ${PRIORITY_CONFIG[story.priority].color}`}
+              >
+                {PRIORITY_CONFIG[story.priority].label}
+              </span>
               {onEditStory && (
                 <button
                   onClick={onEditStory}
-                  className="rounded-lg p-1.5 text-white/40 transition-colors hover:bg-white/10 hover:text-white/80"
+                  className="rounded-xl border border-white/6 bg-black/30 p-2 text-white/50 transition-all hover:border-white/10 hover:text-white/80"
+                  title="Edit story"
                 >
                   <PencilIcon />
                 </button>
@@ -77,13 +88,15 @@ const TaskBoard = ({ story, onEditStory, onDeleteStory }: Props) => {
               {onDeleteStory && (
                 <button
                   onClick={onDeleteStory}
-                  className="rounded-lg p-1.5 text-red-400/50 transition-colors hover:bg-red-400/10 hover:text-red-400"
+                  className="rounded-xl border border-white/6 bg-black/30 p-2 text-red-400/50 transition-all hover:border-red-400/20 hover:text-red-400"
+                  title="Delete story"
                 >
                   <TrashIcon />
                 </button>
               )}
             </div>
-          )}
+          </div>
+          {story.description && <p className="text-foreground-hover mt-2 text-sm">{story.description}</p>}
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
