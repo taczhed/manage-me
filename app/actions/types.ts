@@ -13,10 +13,13 @@ export interface Task {
 export type CreateTaskInput = Omit<Task, 'id' | 'createdAt' | 'updatedAt'>;
 export type UpdateTaskInput = Partial<CreateTaskInput>;
 
+export type UserRole = 'admin' | 'devops' | 'developer';
+
 export interface User {
   id: string;
   firstName: string;
   lastName: string;
+  role: UserRole;
 }
 
 export interface Project {
