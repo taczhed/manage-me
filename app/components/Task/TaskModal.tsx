@@ -1,18 +1,35 @@
 'use client';
 
 import { useState } from 'react';
-import { Task, TaskStatus } from '../../actions/types';
+import { Task, TaskStatus, TaskPriority } from '../../actions/types';
+import { users } from '../../actions/users';
 import { STATUS_CONFIG } from '../../utils/config';
+import { CloseIcon } from '../UI/Icons';
+import Modal from '../UI/Modal';
+
+const eligibleUsers = users.filter((u) => u.role === 'developer' || u.role === 'devops');
 
 const STATUSES: { value: TaskStatus; label: string; bg: string; color: string; dot: string; ring: string }[] = [
   { value: 'todo', ...STATUS_CONFIG.todo },
   { value: 'doing', ...STATUS_CONFIG.doing },
   { value: 'done', ...STATUS_CONFIG.done },
 ];
-import { CloseIcon } from '../UI/Icons';
-import Modal from '../UI/Modal';
 
-export type TaskFormData = { title: string; description: string; status: TaskStatus };
+const PRIORITIES: { value: TaskPriority; label: string; color: string; bg: string; ring: string }[] = [
+  { value: 'low', label: 'Low', color: 'text-emerald-400', bg: 'bg-emerald-400/10', ring: 'ring-emerald-400/30' },
+  { value: 'medium', label: 'Medium', color: 'text-amber-400', bg: 'bg-amber-400/10', ring: 'ring-amber-400/30' },
+  { value: 'high', label: 'High', color: 'text-rose-400', bg: 'bg-rose-400/10', ring: 'ring-rose-400/30' },
+];
+
+export type TaskFormData = {
+  name: string;
+  description: string;
+  priority: TaskPriority;
+  estimatedTime: number;
+  status: TaskStatus;
+  assigneeId?: string;
+  loggedHours?: number;
+};
 
 type Props = {
   task: Task | null;
@@ -23,22 +40,26 @@ type Props = {
 
 const TaskModal = ({ task, defaultStatus = 'todo', onClose, onSave }: Props) => {
   const isEdit = !!task;
+  const [nameError, setNameError] = useState('');
   const [form, setForm] = useState<TaskFormData>({
-    title: task?.title || '',
+    name: task?.name || '',
     description: task?.description || '',
+    priority: task?.priority || 'medium',
+    estimatedTime: task?.estimatedTime || 0,
     status: task?.status || defaultStatus,
+    assigneeId: task?.assigneeId || '',
+    loggedHours: task?.loggedHours || 0,
   });
-  const [titleError, setTitleError] = useState('');
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.title.trim()) {
-      setTitleError('Title is required');
+    if (!form.name.trim()) {
+      setNameError('Name is required');
       return;
     }
 
-    onSave({ title: form.title.trim(), description: form.description.trim(), status: form.status }, task?.id);
+    onSave({ ...form, name: form.name.trim(), description: form.description.trim() }, task?.id);
   };
 
   return (
@@ -61,20 +82,20 @@ const TaskModal = ({ task, defaultStatus = 'todo', onClose, onSave }: Props) => 
       <form onSubmit={submit} className="flex flex-col gap-4">
         <div>
           <label className="text-foreground-hover mb-1.5 block text-xs font-medium">
-            Title <span className="text-rose-400">*</span>
+            Name <span className="text-rose-400">*</span>
           </label>
           <input
             type="text"
-            value={form.title}
+            value={form.name}
             onChange={(e) => {
-              setForm((f) => ({ ...f, title: e.target.value }));
-              setTitleError('');
+              setForm((f) => ({ ...f, name: e.target.value }));
+              setNameError('');
             }}
-            placeholder="Enter task title…"
-            className={`w-full border bg-black/30 ${titleError ? 'border-rose-500/50' : 'border-white/6'} text-foreground placeholder:text-foreground-hover/50 focus:border-primary/50 rounded-xl px-3.5 py-2.5 text-sm transition-all focus:outline-none`}
+            placeholder="Enter task name…"
+            className={`w-full border bg-black/30 ${nameError ? 'border-rose-500/50' : 'border-white/6'} text-foreground placeholder:text-foreground-hover/50 focus:border-primary/50 rounded-xl px-3.5 py-2.5 text-sm transition-all focus:outline-none`}
             autoFocus
           />
-          {titleError && <p className="mt-1 text-xs text-rose-400">{titleError}</p>}
+          {nameError && <p className="mt-1 text-xs text-rose-400">{nameError}</p>}
         </div>
 
         <div>
@@ -85,6 +106,41 @@ const TaskModal = ({ task, defaultStatus = 'todo', onClose, onSave }: Props) => 
             placeholder="Describe the task…"
             rows={3}
             className="text-foreground placeholder:text-foreground-hover/50 focus:border-primary/50 w-full resize-none rounded-xl border border-white/6 bg-black/30 px-3.5 py-2.5 text-sm transition-all focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label className="text-foreground-hover mb-2 block text-xs font-medium">Priority</label>
+          <div className="grid grid-cols-3 gap-2">
+            {PRIORITIES.map((p) => {
+              const selected = form.priority === p.value;
+              return (
+                <button
+                  key={p.value}
+                  type="button"
+                  onClick={() => setForm((f) => ({ ...f, priority: p.value }))}
+                  className={`rounded-xl border px-3 py-2 text-xs font-medium transition-all ${
+                    selected
+                      ? `${p.bg} ${p.color} border-current/20 ring-1 ${p.ring}`
+                      : 'text-foreground-hover hover:text-foreground border-white/6 hover:border-white/10'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <label className="text-foreground-hover mb-1.5 block text-xs font-medium">Estimated time (hours)</label>
+          <input
+            type="number"
+            value={form.estimatedTime}
+            onChange={(e) => setForm((f) => ({ ...f, estimatedTime: parseFloat(e.target.value) || 0 }))}
+            min="0"
+            step="0.5"
+            className="text-foreground placeholder:text-foreground-hover/50 focus:border-primary/50 w-full rounded-xl border border-white/6 bg-black/30 px-3.5 py-2.5 text-sm transition-all focus:outline-none"
           />
         </div>
 
@@ -110,6 +166,34 @@ const TaskModal = ({ task, defaultStatus = 'todo', onClose, onSave }: Props) => 
               );
             })}
           </div>
+        </div>
+
+        <div>
+          <label className="text-foreground-hover mb-1.5 block text-xs font-medium">Assign person</label>
+          <select
+            value={form.assigneeId || ''}
+            onChange={(e) => setForm((f) => ({ ...f, assigneeId: e.target.value }))}
+            className="text-foreground bg-secondary focus:border-primary/50 w-full rounded-xl border border-white/6 px-3.5 py-2.5 text-sm transition-all focus:outline-none"
+          >
+            <option value="">Unassigned</option>
+            {eligibleUsers.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.firstName} {u.lastName} ({u.role})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="text-foreground-hover mb-1.5 block text-xs font-medium">Log hours</label>
+          <input
+            type="number"
+            value={form.loggedHours || 0}
+            onChange={(e) => setForm((f) => ({ ...f, loggedHours: parseFloat(e.target.value) || 0 }))}
+            min="0"
+            step="0.5"
+            className="text-foreground placeholder:text-foreground-hover/50 focus:border-primary/50 w-full rounded-xl border border-white/6 bg-black/30 px-3.5 py-2.5 text-sm transition-all focus:outline-none"
+          />
         </div>
 
         <div className="flex gap-2 pt-1">

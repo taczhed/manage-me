@@ -1,13 +1,20 @@
 export type TaskStatus = 'todo' | 'doing' | 'done';
+export type TaskPriority = 'low' | 'medium' | 'high';
 
 export interface Task {
   id: string;
-  title: string;
+  name: string;
   description: string;
+  priority: TaskPriority;
+  storyId: string;
+  estimatedTime: number;
   status: TaskStatus;
   createdAt: string;
   updatedAt?: string;
-  storyId?: string;
+  startDate?: string;
+  completionDate?: string;
+  assigneeId?: string;
+  loggedHours?: number;
 }
 
 export type CreateTaskInput = Omit<Task, 'id' | 'createdAt' | 'updatedAt'>;

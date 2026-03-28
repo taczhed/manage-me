@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Story, Project } from '../../actions/types';
 import { getStory } from '../../actions/stories';
 import { getProject } from '../../actions/projects';
-import { currentUser } from '../../actions/users';
 import Navbar from '../../components/Layout/Navbar';
 import TaskBoard from '../../components/Task/TaskBoard';
 
@@ -36,7 +35,7 @@ export default function StoryPage({ params }: Props) {
       <div className="relative z-10">
         <Navbar project={project || undefined} story={story} />
         <main>
-          <TaskBoard story={story} user={currentUser} />
+          <TaskBoard story={story} />
         </main>
       </div>
     </div>

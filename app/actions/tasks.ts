@@ -1,4 +1,6 @@
 import { Task, CreateTaskInput, UpdateTaskInput } from './types';
+import { users } from './users';
+import { getStory, updateStory } from './stories';
 
 const KEY = 'tasks';
 
@@ -46,4 +48,47 @@ export const removeTask = (id: string) => {
   const filtered = tasks.filter((t) => t.id !== id);
   if (filtered.length === tasks.length) return false;
   save(filtered);
+};
+
+export const assignTask = (taskId: string, assigneeId: string) => {
+  const user = users.find((u) => u.id === assigneeId);
+  if (!user || (user.role !== 'developer' && user.role !== 'devops')) return undefined;
+
+  updateTask(taskId, { assigneeId });
+
+  const task = getTask(taskId);
+
+  if (!task) return undefined;
+
+  const now = new Date().toISOString();
+  if (task.status === 'todo') {
+    updateTask(taskId, { status: 'doing', startDate: now });
+  }
+
+  const story = getStory(task.storyId);
+  if (story && story.status === 'todo') {
+    updateStory(task.storyId, { status: 'doing' });
+  }
+
+  return getTask(taskId);
+};
+
+export const completeTask = (taskId: string) => {
+  const task = getTask(taskId);
+  if (!task) return undefined;
+
+  const now = new Date().toISOString();
+  updateTask(taskId, { status: 'done', completionDate: now });
+
+  const storyTasks = getTasks(task.storyId);
+  const allDone = storyTasks.every((t) => t.id === taskId || t.status === 'done');
+  if (allDone) {
+    updateStory(task.storyId, { status: 'done' });
+  }
+
+  return getTask(taskId);
+};
+
+export const logHours = (taskId: string, hours: number) => {
+  return updateTask(taskId, { loggedHours: hours });
 };
